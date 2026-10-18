@@ -1,5 +1,5 @@
-import type { Omen } from '../config/gacha';
-import { omenStyle } from '../config/gacha';
+import { effectNames, omenStyle, rarities } from '../config/gacha';
+import type { DrawResult } from '../logic/gacha';
 import type { Phase } from '../logic/stateMachine';
 
 function centerText(ctx: CanvasRenderingContext2D, w: number, y: number, text: string, size: number): void {
@@ -19,7 +19,7 @@ export function drawPhaseText(
   w: number,
   h: number,
   phase: Phase,
-  omen: Omen | null,
+  result: DrawResult | null,
 ): void {
   const big = Math.round(w / 11);
   const small = Math.round(w / 20);
@@ -27,8 +27,13 @@ export function drawPhaseText(
   if (phase === 'CHARGE') centerText(ctx, w, h * 0.12, '召喚中…', big);
   if (phase === 'REVEAL') centerText(ctx, w, h * 0.12, '(演出は次の段階で実装)', small);
   if (phase === 'RESULT') {
-    centerText(ctx, w, h * 0.4, '(結果表示は次の段階で実装)', small);
-    if (omen) centerText(ctx, w, h * 0.46, `予告色: ${omenStyle[omen].label}`, small);
+    // 仮表示。演出と結果表示の段階で作り込む
+    if (result) {
+      const label = rarities.find((e) => e.id === result.rarity)!.label;
+      centerText(ctx, w, h * 0.38, label, big);
+      centerText(ctx, w, h * 0.45, effectNames[result.effect], small);
+      centerText(ctx, w, h * 0.5, `予告色: ${omenStyle[result.omen].label}`, small);
+    }
     centerText(ctx, w, h * 0.9, 'タップで待機に戻る', small);
   }
 }

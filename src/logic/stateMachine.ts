@@ -1,5 +1,5 @@
-import type { Omen } from '../config/gacha';
 import { timing } from '../config/gacha';
+import type { DrawResult } from './gacha';
 
 // 待機 → 溜め → 発動 → 結果 → 待機。DOM/Canvas に依存しない純粋ロジック
 export type Phase = 'IDLE' | 'CHARGE' | 'REVEAL' | 'RESULT';
@@ -7,18 +7,18 @@ export type Phase = 'IDLE' | 'CHARGE' | 'REVEAL' | 'RESULT';
 export interface GachaState {
   readonly phase: Phase;
   readonly startedAtMs: number;
-  readonly omen: Omen | null;
+  readonly result: DrawResult | null; // タップ時に抽選済みの結果
 }
 
 export function createState(): GachaState {
-  return { phase: 'IDLE', startedAtMs: 0, omen: null };
+  return { phase: 'IDLE', startedAtMs: 0, result: null };
 }
 
-// タップ: IDLE のときだけ溜めを開始(抽選済みの予告色を受け取る)。
+// タップ: IDLE のときだけ溜めを開始(抽選済みの結果を受け取る)。
 // RESULT のときは待機へ戻る。溜め・発動中のタップは無視する
-export function tap(s: GachaState, nowMs: number, omen: Omen): GachaState {
-  if (s.phase === 'IDLE') return { phase: 'CHARGE', startedAtMs: nowMs, omen };
-  if (s.phase === 'RESULT') return { phase: 'IDLE', startedAtMs: nowMs, omen: null };
+export function tap(s: GachaState, nowMs: number, result: DrawResult): GachaState {
+  if (s.phase === 'IDLE') return { phase: 'CHARGE', startedAtMs: nowMs, result };
+  if (s.phase === 'RESULT') return { phase: 'IDLE', startedAtMs: nowMs, result: null };
   return s;
 }
 

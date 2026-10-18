@@ -1,6 +1,8 @@
 import { cameraConfig } from './config/camera';
-import type { Omen } from './config/gacha';
+import type { Omen, Rarity } from './config/gacha';
 import { FpsCounter } from './logic/fps';
+import { draw } from './logic/gacha';
+import { defaultRng } from './logic/rng';
 import { createState, progress, tap, update } from './logic/stateMachine';
 import { drawVideoCover, startCamera } from './render/camera';
 import { drawMagicCircle } from './render/circle';
@@ -27,15 +29,10 @@ function message(text: string): void {
   ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
 
-// 暫定: 抽選ロジック実装までの間、予告色を 青→金→虹 の順に回す。
-// ?omen=blue|gold|rainbow で固定もできる(確認用)
-const OMEN_CYCLE: Omen[] = ['blue', 'gold', 'rainbow'];
-const forced = new URLSearchParams(location.search).get('omen') as Omen | null;
-let cycleIndex = 0;
-function nextOmen(): Omen {
-  if (forced && OMEN_CYCLE.includes(forced)) return forced;
-  return OMEN_CYCLE[cycleIndex++ % OMEN_CYCLE.length];
-}
+// 確認用: ?omen=blue|gold|rainbow と ?rarity=SSR|SR|R|MISS で強制指定(本格的なデバッグUIは後の段階)
+const q = new URLSearchParams(location.search);
+const forceOmen = (q.get('omen') as Omen | null) ?? undefined;
+const forceRarity = (q.get('rarity') as Rarity | null) ?? undefined;
 
 // iOS はカメラ起動にユーザー操作が必要なので、最初のタップでカメラを起動する
 message('タップでカメラ起動');
@@ -46,7 +43,7 @@ canvas.addEventListener(
       const video = await startCamera();
       let state = createState();
       canvas.addEventListener('pointerdown', () => {
-        state = tap(state, performance.now(), nextOmen());
+        state = tap(state, performance.now(), draw(defaultRng, { forceOmen, forceRarity }));
       });
 
       const loop = (now: number): void => {
@@ -54,15 +51,15 @@ canvas.addEventListener(
         const { width: w, height: h } = canvas;
         drawVideoCover(ctx, video, w, h, cameraConfig.mirror);
 
-        if (state.phase === 'CHARGE' && state.omen) {
+        if (state.phase === 'CHARGE' && state.result) {
           const p = progress(state, now);
           drawDim(ctx, w, h, 0.35 * Math.min(1, p * 3));
-          drawMagicCircle(ctx, w, h, state.omen, p, now);
-        } else if (state.phase === 'REVEAL' && state.omen) {
+          drawMagicCircle(ctx, w, h, state.result.omen, p, now);
+        } else if (state.phase === 'REVEAL' && state.result) {
           drawDim(ctx, w, h, 0.35);
-          drawMagicCircle(ctx, w, h, state.omen, 1, now);
+          drawMagicCircle(ctx, w, h, state.result.omen, 1, now);
         }
-        drawPhaseText(ctx, w, h, state.phase, state.omen);
+        drawPhaseText(ctx, w, h, state.phase, state.result);
 
         const f = fps.tick(now);
         ctx.fillStyle = '#0f0';
