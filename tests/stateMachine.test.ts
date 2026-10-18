@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { timing } from '../src/config/gacha';
 import type { DrawResult } from '../src/logic/gacha';
-import { createState, progress, tap, update } from '../src/logic/stateMachine';
+import { applyPose, createState, progress, tap, update } from '../src/logic/stateMachine';
 
 const r = (omen: DrawResult['omen']): DrawResult => ({ rarity: 'R', effect: 'glow', omen });
 
@@ -42,5 +42,33 @@ describe('stateMachine', () => {
     expect(progress(s, 0)).toBe(0);
     expect(progress(s, timing.chargeMs / 2)).toBeCloseTo(0.5);
     expect(progress(s, timing.chargeMs * 10)).toBe(1);
+  });
+});
+
+describe('applyPose', () => {
+  it('溜め中にポーズが成立すると結果が隠し結果に上書きされる', () => {
+    const s = applyPose(tap(createState(), 0, r('blue')), 'chant');
+    expect(s.hidden).toBe('chant');
+    expect(s.result).toMatchObject({ effect: 'true_summon', rarity: 'SSR', omen: 'rainbow' });
+  });
+  it('腕クロスは隠しハズレになる', () => {
+    const s = applyPose(tap(createState(), 0, r('gold')), 'cross');
+    expect(s.result).toMatchObject({ effect: 'pigeon_swarm', rarity: 'MISS' });
+  });
+  it('1回の溜めでは最初のポーズだけが有効(後から上書きしない)', () => {
+    const s1 = applyPose(tap(createState(), 0, r('blue')), 'chant');
+    expect(applyPose(s1, 'cross')).toBe(s1);
+  });
+  it('溜め以外(待機・発動中)では何も起きない', () => {
+    const idle = createState();
+    expect(applyPose(idle, 'chant')).toBe(idle);
+    const reveal = update(tap(createState(), 0, r('blue')), timing.chargeMs);
+    expect(applyPose(reveal, 'chant')).toBe(reveal);
+  });
+  it('次の召喚では hidden がリセットされる', () => {
+    let s = applyPose(tap(createState(), 0, r('blue')), 'chant');
+    s = update(update(s, timing.chargeMs), timing.chargeMs + timing.revealMs);
+    s = tap(tap(s, 9000, r('blue')), 9100, r('blue'));
+    expect(s.hidden).toBeNull();
   });
 });

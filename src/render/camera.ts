@@ -39,3 +39,21 @@ export function drawVideoCover(
   ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
   ctx.restore();
 }
+
+// 映像の正規化座標(0..1)を、drawVideoCover と同じ変換で canvas 座標へ写す(関節表示用)
+export function videoToCanvas(
+  x: number,
+  y: number,
+  video: HTMLVideoElement,
+  w: number,
+  h: number,
+  mirror: boolean,
+): { x: number; y: number } {
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  const scale = Math.max(w / vw, h / vh);
+  const dw = vw * scale;
+  const dh = vh * scale;
+  const px = (w - dw) / 2 + x * dw;
+  return { x: mirror ? w - px : px, y: (h - dh) / 2 + y * dh };
+}

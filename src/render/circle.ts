@@ -1,5 +1,6 @@
 import type { Omen } from '../config/gacha';
 import { omenStyle } from '../config/gacha';
+import type { PoseId } from '../logic/pose';
 
 const TAU = Math.PI * 2;
 
@@ -42,10 +43,14 @@ export function drawMagicCircle(
   omen: Omen,
   strength: number,
   tMs: number,
+  hidden: PoseId | null = null,
 ): void {
   if (strength <= 0) return;
   const eased = 1 - Math.pow(1 - strength, 3);
-  const R = w * 0.44 * (0.15 + 0.85 * eased);
+  // 隠しポーズ成立の合図: 詠唱は巨大化、腕クロスは脈打つ
+  const pulse = hidden === 'cross' ? 1 + 0.06 * Math.sin(tMs * 0.03) : 1;
+  const grow = hidden === 'chant' ? 1.3 : 1;
+  const R = w * 0.44 * (0.15 + 0.85 * eased) * grow * pulse;
   const squash = 0.32; // 床に置いたように見せる縦つぶし
   const unit = Math.max(2, w / 180);
 
@@ -62,7 +67,7 @@ export function drawMagicCircle(
 
   // 外周のルーン(目盛り)。時計回り
   ctx.save();
-  ctx.rotate(tMs * 0.0006);
+  ctx.rotate(tMs * (hidden === 'chant' ? 0.0016 : 0.0006));
   for (let i = 0; i < 36; i++) {
     const a = (i / 36) * TAU;
     const len = i % 3 === 0 ? 0.1 : 0.05;

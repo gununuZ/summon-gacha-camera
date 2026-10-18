@@ -1,5 +1,4 @@
 // ガチャの設定(排出表・予告色の出方・演出時間)。調整はここだけで行う。
-// ポーズのしきい値は隠しポーズの段階でここに追加する
 export type Omen = 'blue' | 'gold' | 'rainbow';
 export type Rarity = 'SSR' | 'SR' | 'R' | 'MISS';
 
@@ -25,7 +24,7 @@ export interface RarityEntry {
 export const rarities: RarityEntry[] = [
   {
     id: 'SSR', label: 'SSR', rate: 0.03,
-    omen: { blue: 0, gold: 0.3, rainbow: 0.7 },
+    omen: { blue: 0.05, gold: 0.3, rainbow: 0.65 }, // 青5%=逆転(指示書の本文と表の矛盾を調整した値)
     effects: ['dragon'],
   },
   {
@@ -59,4 +58,20 @@ export const effectNames: Record<string, string> = {
   smoke: '煙がぽふっ', pigeon: 'ハト', slime: '小さなスライム',
   oji: '普通のおじさん', dim: 'ちょっと暗くなった',
   true_summon: '真・召喚', pigeon_swarm: 'ハト大量発生',
+};
+
+// 隠しポーズの判定しきい値。長さはすべて「肩幅」を1とした相対値(体格・距離に依存しない)
+export const poses = {
+  detectIntervalMs: 60, // 推論の最短間隔(端末が重いときは上げる)
+  holdMs: 500, // キープ時間
+  graceMs: 200, // 検出の途切れを許す時間(ブレ対策)
+  minVisibility: 0.5, // 関節の信頼度の下限
+  minShoulderWidth: 0.08, // 画面幅比。これ未満は遠すぎて判定しない
+  chant: { wristAboveNoseSw: 0.15 }, // 両手首が鼻よりこれ以上上
+  cross: {
+    minWristGapSw: 0.15, // 手首同士がこれ以上離れている(手を合わせただけを除外)
+    aboveShoulderSw: 0.6, // 肩の高さからこれ以上上は不可
+    belowShoulderSw: 1.4, // 肩の高さからこれ以上下は不可
+    outsideShoulderSw: 0.4, // 肩幅の外側にこれ以上はみ出さない
+  },
 };
