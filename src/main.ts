@@ -1,4 +1,5 @@
 import { cameraConfig } from './config/camera';
+import { mountDebugPanel } from './debug/panel';
 import { defaultFraming, framings, segmentation } from './config/framing';
 import type { Omen, Rarity } from './config/gacha';
 import { poses, timing } from './config/gacha';
@@ -47,7 +48,7 @@ function message(text: string): void {
 // 確認用: ?omen= ?rarity= ?effect= で強制指定、?maskInvert=1 で切り抜きを反転、?framing=wide で広画角モード、?debug=1 で関節・詳細表示、?fakeSil=1 で仮の輪郭を使う
 // (本格的なデバッグUIは後の段階)
 const q = new URLSearchParams(location.search);
-const forceOmen = (q.get('omen') as Omen | null) ?? undefined;
+let forceOmen = (q.get('omen') as Omen | null) ?? undefined; // デバッグパネルでも切り替わる
 const forceRarity = (q.get('rarity') as Rarity | null) ?? undefined;
 const forceEffect = q.get('effect') ?? undefined;
 const debug = q.get('debug') === '1';
@@ -86,6 +87,17 @@ canvas.addEventListener(
         state = tap(state, performance.now(), draw(defaultRng, { forceOmen, forceRarity, forceEffect }));
         if (before !== state.phase) hold.reset();
       });
+
+      // デバッグパネル: 演出ボタンのタップで、状態に関わらずその演出を今すぐ再生する
+      if (debug) {
+        mountDebugPanel({
+          onPickEffect: (id) => {
+            state = tap(createState(), performance.now(), draw(defaultRng, { forceEffect: id, forceOmen }));
+            hold.reset();
+          },
+          onOmen: (o) => { forceOmen = o ?? undefined; },
+        });
+      }
 
       let liveCandidate: string | null = null;
       let effect: Effect | null = null;
