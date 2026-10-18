@@ -1,5 +1,5 @@
 import type { Omen, Rarity, RarityEntry } from '../config/gacha';
-import { rarities as defaultTable } from '../config/gacha';
+import { hiddenResults, rarities as defaultTable } from '../config/gacha';
 import type { Rng } from './rng';
 
 export interface DrawResult {
@@ -12,6 +12,7 @@ export interface DrawOptions {
   table?: RarityEntry[];
   forceRarity?: Rarity; // デバッグ: 結果を強制
   forceOmen?: Omen; // デバッグ: 予告色を強制
+  forceEffect?: string; // デバッグ: 演出を強制(レアリティは演出から逆引き)
 }
 
 // 重みつき選択。entries の値は合計1でなくてもよい
@@ -29,6 +30,14 @@ function pick<T extends string>(rng: Rng, weights: Record<T, number>): T {
 export function draw(rng: Rng, opts: DrawOptions = {}): DrawResult {
   const table = opts.table ?? defaultTable;
   const rate = Object.fromEntries(table.map((e) => [e.id, e.rate])) as Record<Rarity, number>;
+  if (opts.forceEffect) {
+    const id = opts.forceEffect;
+    const hit = table.find((e) => e.effects.includes(id));
+    const hidden = Object.values(hiddenResults).find((h) => h.effect === id);
+    const rarity = hit?.id ?? hidden?.rarity ?? 'MISS';
+    const entry = table.find((e) => e.id === rarity)!;
+    return { rarity, effect: id, omen: opts.forceOmen ?? hidden?.omen ?? pick(rng, entry.omen) };
+  }
   const rarity = opts.forceRarity ?? pick(rng, rate);
   const entry = table.find((e) => e.id === rarity)!;
   const omen = opts.forceOmen ?? pick(rng, entry.omen);

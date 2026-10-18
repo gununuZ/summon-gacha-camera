@@ -3,13 +3,13 @@ import type { DrawResult } from '../logic/gacha';
 import type { PoseId } from '../logic/pose';
 import type { Phase } from '../logic/stateMachine';
 
-function centerText(ctx: CanvasRenderingContext2D, w: number, y: number, text: string, size: number): void {
+function centerText(ctx: CanvasRenderingContext2D, w: number, y: number, text: string, size: number, color = '#fff'): void {
   ctx.save();
   ctx.font = `bold ${size}px sans-serif`;
   ctx.textAlign = 'center';
   ctx.lineWidth = size / 8;
   ctx.strokeStyle = 'rgba(0,0,0,0.7)';
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = color;
   ctx.strokeText(text, w / 2, y);
   ctx.fillText(text, w / 2, y);
   ctx.restore();
@@ -22,6 +22,7 @@ export function drawPhaseText(
   phase: Phase,
   result: DrawResult | null,
   hidden: PoseId | null = null,
+  debug = false,
 ): void {
   const big = Math.round(w / 11);
   const small = Math.round(w / 20);
@@ -29,16 +30,15 @@ export function drawPhaseText(
   if (phase === 'CHARGE') {
     centerText(ctx, w, h * 0.12, hidden ? '— 隠しポーズ成立 —' : '召喚中…', hidden ? small : big);
   }
-  if (phase === 'REVEAL') centerText(ctx, w, h * 0.12, '(演出は次の段階で実装)', small);
   if (phase === 'RESULT') {
-    // 仮表示。演出と結果表示の段階で作り込む
     if (result) {
       const label = rarities.find((e) => e.id === result.rarity)!.label;
-      centerText(ctx, w, h * 0.38, label, big);
-      centerText(ctx, w, h * 0.45, effectNames[result.effect], small);
-      centerText(ctx, w, h * 0.5, `予告色: ${omenStyle[result.omen].label}`, small);
+      const color = { SSR: '#ffd24a', SR: '#d58bff', R: '#7cc4ff', MISS: '#d0d0d8' }[result.rarity];
+      centerText(ctx, w, h * 0.72, label, Math.round(w / 5), color);
+      centerText(ctx, w, h * 0.79, effectNames[result.effect], Math.round(w / 12));
+      if (debug) centerText(ctx, w, h * 0.84, `予告色: ${omenStyle[result.omen].label}`, small);
     }
-    centerText(ctx, w, h * 0.9, 'タップで待機に戻る', small);
+    centerText(ctx, w, h * 0.92, 'タップで待機に戻る', small);
   }
 }
 

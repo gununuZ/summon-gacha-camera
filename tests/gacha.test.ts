@@ -68,3 +68,11 @@ describe('抽選の性質', () => {
     expect(seen.size).toBe(5);
   });
 });
+
+describe('演出の強制指定', () => {
+  it('演出IDからレアリティを逆引きする', () => {
+    expect(draw(seededRng(1), { forceEffect: 'fire' })).toMatchObject({ rarity: 'SR', effect: 'fire' });
+    expect(draw(seededRng(1), { forceEffect: 'dragon' })).toMatchObject({ rarity: 'SSR' });
+    expect(draw(seededRng(1), { forceEffect: 'pigeon_swarm' })).toMatchObject({ rarity: 'MISS' });
+  });
+});
