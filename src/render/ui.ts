@@ -59,3 +59,8 @@ export function drawHoldBar(ctx: CanvasRenderingContext2D, w: number, h: number,
   ctx.fillStyle = '#fff';
   ctx.fillRect(x, y, bw * Math.min(1, ratio), h * 0.012);
 }
+
+// 待機中の構図の案内(画面上部)
+export function drawHint(ctx: CanvasRenderingContext2D, w: number, h: number, text: string): void {
+  centerText(ctx, w, h * 0.12, text, Math.round(w / 22));
+}

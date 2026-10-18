@@ -44,18 +44,20 @@ export function drawMagicCircle(
   strength: number,
   tMs: number,
   hidden: PoseId | null = null,
+  layout: 'floor' | 'back' = 'floor',
 ): void {
   if (strength <= 0) return;
   const eased = 1 - Math.pow(1 - strength, 3);
   // 隠しポーズ成立の合図: 詠唱は巨大化、腕クロスは脈打つ
   const pulse = hidden === 'cross' ? 1 + 0.06 * Math.sin(tMs * 0.03) : 1;
   const grow = hidden === 'chant' ? 1.3 : 1;
-  const R = w * 0.44 * (0.15 + 0.85 * eased) * grow * pulse;
-  const squash = 0.32; // 床に置いたように見せる縦つぶし
+  const baseR = layout === 'back' ? w * 0.46 : w * 0.44;
+  const R = baseR * (0.15 + 0.85 * eased) * grow * pulse;
+  const squash = layout === 'back' ? 1 : 0.32; // 足元は床に置いたように縦につぶす。背後は正円
   const unit = Math.max(2, w / 180);
 
   ctx.save();
-  ctx.translate(w / 2, h * 0.82);
+  ctx.translate(w / 2, layout === 'back' ? h * 0.42 : h * 0.82);
   ctx.scale(1, squash);
   ctx.globalAlpha = Math.min(1, 0.25 + strength);
   ctx.shadowColor = omen === 'rainbow' ? '#ffffff' : omenStyle[omen].color;
