@@ -29,6 +29,27 @@
 - ランダム系(randomizer)は公式に一般的な種類として扱われている。ガチャ形式を禁じる記述は見つからなかった(未確認)
 - 日本での利用・公開条件は未確認
 
+## 試作(スパイク)計画 — 2026-10-19 開始
+
+目的: 本番を作り込む前に、Effect House でしか確かめられないリスクを潰す。
+
+### 完了条件(3つの問いに答えが出たら終わり)
+1. **性能**: 人物の切り抜き + パーティクル + 背景差し替えを同時に動かして、Effect House の「Test performance」を通るか
+2. **輪郭演出**: 人物の輪郭に沿って炎などを出せるか(できない場合の代わりの見せ方も決める)
+3. **ロジック**: タップ → 抽選(重みつき) → 演出の切り替え、を組めるか(Visual Scripting か TypeScript か)
+
+### 手順
+- [ ] S1. Windows PC に Effect House を入れて、TikTok アカウントでログイン
+- [ ] S2. 新規プロジェクトに Portrait Segmentation を置き、背景を暗い画像に差し替える(見本動画で確認)
+- [ ] S3. Screen Tap → Random → 2種類の表示(例: SSR / ハズレ)を切り替える
+- [ ] S4. パーティクルを1つ置き、人物の周りに出せるか試す(問い2)
+- [ ] S5. 「Test performance」を実行し、FPS を記録する(問い1)
+- [ ] S6. 「Preview in TikTok」の QR を TikTok アプリで読み、Pixel で動作を見る
+
+### 確認環境
+- PC に Webカメラが無いので、Preview パネルの見本動画で確認する
+- 実機確認は「Preview in TikTok」の QR を TikTok アプリ内のスキャナーで読む(同じアカウントでログインが必要)
+
 ## 参考(公式ページ)
 - Release Notes: https://effecthouse.tiktok.com/latest/release-notes-latest
 - Scripting Capability Usage Guide: https://effecthouse.tiktok.com/learn/guides/api-reference/scripting-capability-usage-guide
@@ -37,5 +58,6 @@
 - 2D Keypoint Tracker: https://effecthouse.tiktok.com/learn/guides/workspace/objects/ar-tracking/2d-keypoint-tracker
 - Human Pose Estimation: https://effecthouse.tiktok.com/learn/guides/visual-scripting/nodes/body/human-pose-estimation
 - Audio: https://effecthouse.tiktok.com/learn/guides/audio/audio-1/
+- Preview in Effect House: https://effecthouse.tiktok.com/learn/guides/publishing/preview/preview-in-effect-house
 - Effect Guidelines: https://effecthouse.tiktok.com/learn/guides/publishing/effect-guidelines
 - Technical Optimization: https://effecthouse.tiktok.com/learn/guides/getting-started/technical-guidelines/technical-optimization
