@@ -39,7 +39,7 @@
 3. **ロジック**: タップ → 抽選(重みつき) → 演出の切り替え、を組めるか(Visual Scripting か TypeScript か)
 
 ### 手順
-- [ ] S1. Windows PC に Effect House を入れて、TikTok アカウントでログイン
+- [ ] S1. MacBook に Effect House を入れて、TikTok アカウントでログイン(内蔵カメラでプレビューできるため Mac を使う)
 - [ ] S2. 新規プロジェクトに Portrait Segmentation を置き、背景を暗い画像に差し替える(見本動画で確認)
 - [ ] S3. Screen Tap → Random → 2種類の表示(例: SSR / ハズレ)を切り替える
 - [ ] S4. パーティクルを1つ置き、人物の周りに出せるか試す(問い2)
@@ -47,7 +47,7 @@
 - [ ] S6. 「Preview in TikTok」の QR を TikTok アプリで読み、Pixel で動作を見る
 
 ### 確認環境
-- PC に Webカメラが無いので、Preview パネルの見本動画で確認する
+- MacBook の内蔵カメラで Preview パネルに自分を映して確認する(見本動画も使える)
 - 実機確認は「Preview in TikTok」の QR を TikTok アプリ内のスキャナーで読む(同じアカウントでログインが必要)
 
 ## 参考(公式ページ)
